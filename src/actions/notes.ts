@@ -120,11 +120,24 @@ export const askAIAboutNotesAction = async (
     });
 
     return [completion.choices[0].message.content || "A problem has occurred"];
-  } catch (error: any) {
-    const errorMessage = error?.response?.data?.error?.message || "";
+  } catch (error: unknown) {
+    let errorMessage = "";
+    let status = 0;
+
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as any).response === "object"
+    ) {
+      const response = (error as any).response;
+      status = response?.status;
+      errorMessage = response?.data?.error?.message || "";
+    }
+
     console.error("OpenAI Error:", errorMessage);
 
-    if (error?.response?.status === 429 || error?.response?.status === 400) {
+    if (status === 429 || status === 400) {
       if (
         errorMessage.toLowerCase().includes("quota") ||
         errorMessage.toLowerCase().includes("billing") ||
@@ -136,7 +149,6 @@ export const askAIAboutNotesAction = async (
       }
     }
 
-    // Fallback
     return [
       "There was a problem completing your request. Please contact the site owner for help.",
     ];
