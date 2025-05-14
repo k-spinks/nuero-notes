@@ -72,7 +72,7 @@ export const askAIAboutNotesAction = async (
   });
 
   if (notes.length === 0) {
-    return ["You don't have any notes yet."];
+    return "You don't have any notes yet.";
   }
 
   const formattedNotes = notes
